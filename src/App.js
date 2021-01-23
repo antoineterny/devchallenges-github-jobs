@@ -2,46 +2,41 @@ import "./App.scss"
 import React from "react"
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom"
 
-export default function App() {
-  return (
-    <Router>
-      <div className="App">
-        <h1>
-          Github <span>Jobs</span>
-        </h1>
-        <div>
-          {/* <nav>
-            <ul>
-              <li>
-                <Link to="/">Home</Link>
-              </li>
-              <li>
-                <Link to="/details">Details</Link>
-              </li>
-            </ul>
-          </nav> */}
+import react_berlin from "./react_berlin.json"
 
-          {/* A <Switch> looks through its children <Route>s and
-            renders the first one that matches the current URL. */}
+export default class App extends React.Component {
+  state = {
+    selectedJob: {},
+  }
+  onJobClick = job => this.setState({ selectedJob: job })
+  render() {
+    return (
+      // https://reactrouter.com/
+      <Router>
+        <div className="App">
+          <h1>
+            Github <span>Jobs</span>
+          </h1>
           <Switch>
-            <Route path="/">
-              <Home />
-            </Route>
             <Route path="/details">
-              <About />
+              <Details job={this.state.selectedJob} />
+            </Route>
+            <Route path="/">
+              <Home onJobClick={this.onJobClick} />
             </Route>
           </Switch>
         </div>
-      </div>
-    </Router>
-  )
+      </Router>
+    )
+  }
 }
 
 class Home extends React.Component {
   state = {
     descriptionTerm: "",
     locationTerm: "",
-    searchResult: [],
+    // searchResult: [],
+    searchResult: react_berlin,
   }
   getJobs = async () => {
     const corsAnywhere = "https://cors-anywhere.herokuapp.com/"
@@ -85,7 +80,7 @@ class Home extends React.Component {
         <main>
           <aside>
             <form>
-              <label htmlFor="location">Location</label>
+              <h4 htmlFor="location">Location</h4>
               <div className="aside-form-wrapper">
                 <i className="material-icons">public</i>
                 <input
@@ -101,7 +96,7 @@ class Home extends React.Component {
           </aside>
           <section>
             {this.state.searchResult.map(job => (
-              <JobCard job={job} />
+              <JobCard job={job} onJobClick={this.props.onJobClick} />
             ))}
           </section>
         </main>
@@ -110,37 +105,91 @@ class Home extends React.Component {
   }
 }
 
-function JobCard({ job }) {
+function JobCard({ job, onJobClick }) {
   const jobDate = new Date(job.created_at)
   const today = new Date()
   const diff = today - jobDate
   const daysAgo = Math.floor(diff / 1000 / 60 / 60 / 24)
   return (
-    <div className="job-card" key={job.id}>
-      <div className="job-card-image">
-        <img src={job.company_logo} alt="" />
-      </div>
-      <div className="job-card-description">
-        <h5>{job.company}</h5>
-        <h3>{job.title}</h3>
-        <div className="job-card-details">
-          <div>{job.type === "Full Time" ? <div className="full-time">Full Time</div> : null}</div>
-          <div className="job-card-spacetime">
-            <span>
-              <i className="material-icons">public</i>
-              {job.location}
-            </span>
-            <span>
-              <i className="material-icons">schedule</i>
-              {daysAgo === 0 ? "Today" : daysAgo === 1 ? "1 day ago" : `${daysAgo} days ago`}
-            </span>
+    <div className="job-card" key={job.id} onClick={() => onJobClick(job)}>
+      <Link to="/details">
+        <div className="job-card-image">
+          {job.company_logo ? (
+            <img src={job.company_logo} alt="" />
+          ) : (
+            <div className="not-found">not found</div>
+          )}
+        </div>
+        <div className="job-card-description">
+          <h5>{job.company}</h5>
+          <h3>{job.title}</h3>
+          <div className="job-card-details">
+            <div>
+              {job.type === "Full Time" ? <div className="full-time">Full Time</div> : null}
+            </div>
+            <div className="spacetime">
+              <span>
+                <i className="material-icons">public</i>
+                {job.location}
+              </span>
+              <span>
+                <i className="material-icons">schedule</i>
+                {daysAgo === 0 ? "Today" : daysAgo === 1 ? "1 day ago" : `${daysAgo} days ago`}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      </Link>
     </div>
   )
 }
 
-function About() {
-  return <h2>Details</h2>
+function Details({ job }) {
+  const jobDate = new Date(job.created_at)
+  const today = new Date()
+  const diff = today - jobDate
+  const daysAgo = Math.floor(diff / 1000 / 60 / 60 / 24)
+  return (
+    <div className="Details">
+      <aside>
+        <div className="back">
+          <Link to="/">
+            <i className="material-icons">west</i>Back to search
+          </Link>
+        </div>
+        <h4>How to apply</h4>
+        <p dangerouslySetInnerHTML={{ __html: job.how_to_apply }}></p>
+      </aside>
+      {/* https://reactjs.org/docs/dom-elements.html#dangerouslysetinnerhtml */}
+      <main>
+        <h2>
+          {job.title}
+          {job.type === "Full Time" ? <div className="full-time">Full Time</div> : null}
+        </h2>
+        <div className="spacetime">
+          <span>
+            <i className="material-icons">schedule</i>
+            {daysAgo === 0 ? "Today" : daysAgo === 1 ? "1 day ago" : `${daysAgo} days ago`}
+          </span>
+        </div>
+        <div className="company">
+          {job.company_logo ? (
+            <img src={job.company_logo} alt="" />
+          ) : (
+            <div className="not-found">not found</div>
+          )}
+          <div>
+            <h3>{job.company}</h3>
+            <div className="spacetime">
+              <span>
+                <i className="material-icons">public</i>
+                {job.location}
+              </span>
+            </div>
+          </div>
+        </div>
+        <p dangerouslySetInnerHTML={{ __html: job.description }}></p>
+      </main>
+    </div>
+  )
 }

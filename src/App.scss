@@ -4,6 +4,61 @@
   margin: 0 auto;
   color: var(--indigo);
   font-family: "Roboto", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  a {
+    text-decoration: none;
+    display: flex;
+    color: var(--indigo);
+  }
+  h2 {
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 24px;
+    line-height: 28px;
+    margin-bottom: 10px;
+  }
+  h4 {
+    display: block;
+    text-transform: uppercase;
+    font-family: "Poppins", sans-serif;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 14px;
+    color: var(--gray);
+  }
+  .full-time {
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 12px;
+    width: 63px;
+    height: 26px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid var(--indigo);
+    border-radius: 4px;
+  }
+  .spacetime {
+    color: var(--gray);
+    span {
+      font-family: Roboto;
+      font-style: normal;
+      font-weight: 500;
+      font-size: 12px;
+      margin-left: 2em;
+    }
+    span:first-of-type {
+      margin-left: 0;
+    }
+    i {
+      vertical-align: middle;
+      font-size: 15px;
+      margin-right: 0.5em;
+      line-height: 0;
+    }
+  }
 }
 
 .Home {
@@ -66,6 +121,7 @@
   }
   main {
     display: flex;
+
     aside {
       width: 380px;
       margin-right: 32px;
@@ -76,15 +132,7 @@
         & > * {
           color: var(--gray);
         }
-        label {
-          display: block;
-          text-transform: uppercase;
-          font-family: "Poppins", sans-serif;
-          font-style: normal;
-          font-weight: bold;
-          font-size: 14px;
-          margin-bottom: 14px;
-        }
+
         .aside-form-wrapper {
           height: 48px;
           display: flex;
@@ -120,18 +168,40 @@
       .job-card {
         height: 114px;
         padding: 12px;
-        display: flex;
         background: #ffffff;
         box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
         border-radius: 4px;
         margin-bottom: 32px;
-        &-image img {
+        border: 1px solid white;
+        &:hover {
+          cursor: pointer;
+          border: 1px solid var(--blue);
+          box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
+        }
+        &-image {
           height: 90px;
           width: 90px;
-          object-fit: contain;
-          display: block;
           border-radius: 4px;
           margin-right: 16px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          img {
+            width: 90px;
+          }
+          .not-found {
+            height: 90px;
+            width: 90px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f2f2f2;
+            font-family: Roboto;
+            font-style: normal;
+            font-weight: 500;
+            font-size: 12px;
+            color: #bdbdbd;
+          }
         }
         h5 {
           font-family: Roboto;
@@ -147,6 +217,7 @@
           font-weight: normal;
           font-size: 18px;
           line-height: 21px;
+          margin-bottom: 12px;
         }
         &-description {
           width: 100%;
@@ -154,17 +225,62 @@
         &-details {
           display: flex;
           justify-content: space-between;
-        }
-        &-spacetime {
-          span {
-            margin-left: 2em;
-          }
-          i {
-            vertical-align: middle;
-            font-size: 15px;
-          }
+          align-items: center;
         }
       }
+    }
+  }
+}
+
+.Details {
+  display: flex;
+  h2 {
+    display: flex;
+    justify-self: flex-start;
+    align-items: center;
+    .full-time {
+      height: 26px;
+      margin-left: 26px;
+    }
+  }
+  aside {
+    flex-shrink: 0;
+    width: 230px;
+    margin-right: 77px;
+    font-family: Poppins;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 21px;
+    .back {
+      margin-bottom: 36px;
+    }
+    a {
+      color: var(--blue);
+      word-break: break-all;
+      i {
+        margin-right: 15px;
+        font-size: 19px;
+      }
+    }
+  }
+  main {
+    font-size: 16px;
+    line-height: 150%;
+  }
+  .company {
+    display: flex;
+    margin: 32px 0;
+    img {
+      width: 42px;
+      height: 42px;
+      border-radius: 4px;
+      object-fit: contain;
+      margin-right: 12px;
+    }
+    h3 {
+      font-weight: bold;
+      font-size: 18px;
     }
   }
 }
