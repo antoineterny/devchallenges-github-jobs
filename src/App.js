@@ -1,18 +1,85 @@
 import "./App.scss"
-import React from "react"
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom"
+// import React from "react"
+import { Component, useEffect } from "react"
+import { BrowserRouter as Router, Switch, Route, Link, useLocation } from "react-router-dom"
 
-import react_berlin from "./react_berlin.json"
+// import react_berlin from "./react_berlin.json"
+import js_everywhere from "./js_everywhere.json"
 
-export default class App extends React.Component {
+export default class App extends Component {
   state = {
+    descriptionTerm: "",
+    locationTerm: "",
+    fullTimeSearch: false,
+    searchResult: [],
+    resultPages: [],
+    currentPage: 1,
     selectedJob: {},
   }
+
+  // Juste pour le test !
+  componentDidMount() {
+    this.setState({ searchResult: js_everywhere, resultPages: this.chunk(js_everywhere, 5) })
+  }
+
+  getJobs = async () => {
+    const corsAnywhere = "https://cors-anywhere.herokuapp.com/"
+    const baseURL = "https://jobs.github.com/positions.json?"
+    const description = this.state.descriptionTerm
+      ? "description=" + this.state.descriptionTerm
+      : ""
+    const location = this.state.locationTerm ? "&location=" + this.state.locationTerm : ""
+    const response = await fetch(corsAnywhere + baseURL + description + location)
+    const data = await response.json()
+    this.setState({ searchResult: data })
+    this.setState({ resultPages: this.chunk(data, 5) })
+  }
+
+  chunk = (arr, size) =>
+    Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+      arr.slice(i * size, i * size + size)
+    )
+
+  onTitleInputChange = e => {
+    this.setState({ descriptionTerm: e.target.value })
+  }
+
+  onLocationInputChange = e => {
+    this.setState({ locationTerm: e.target.value })
+  }
+  
+  onCitySelect = city => {
+    this.setState({ locationTerm: city })
+  }
+
+  onFullTimeSelect = () => this.setState({fullTimeSearch: !this.state.fullTimeSearch})
+
+  onFormSubmit = e => {
+    e.preventDefault()
+    this.getJobs()
+  }
+
   onJobClick = job => this.setState({ selectedJob: job })
+
+  onPaginationClick = arg => {
+    console.log("arg", arg)
+    console.log("this.state.currentPage", this.state.currentPage)
+    console.log("this.state.currentPage - 1", this.state.currentPage - 1)
+    const newPage =
+      arg === "-" ? this.state.currentPage - 1 : arg === "+" ? this.state.currentPage + 1 : arg.i
+    this.setState({ currentPage: newPage })
+    // if (arg === 0) {
+    //   console.log("arg 0", currentPage)
+    //   this.setState({ currentPage: currentPage - 1 })}
+    // if (arg === "+") this.setState({ currentPage: currentPage + 1 })
+    // else this.setState({ currentPage: arg.i })
+  }
+
   render() {
     return (
       // https://reactrouter.com/
       <Router>
+        <ScrollToTop />
         <div className="App">
           <h1>
             Github <span>Jobs</span>
@@ -22,7 +89,18 @@ export default class App extends React.Component {
               <Details job={this.state.selectedJob} />
             </Route>
             <Route path="/">
-              <Home onJobClick={this.onJobClick} />
+              <Home
+                onJobClick={this.onJobClick}
+                onTitleInputChange={this.onTitleInputChange}
+                onLocationInputChange={this.onLocationInputChange}
+                onFormSubmit={this.onFormSubmit}
+                resultPages={this.state.resultPages}
+                currentPage={this.state.currentPage}
+                locationTerm={this.state.locationTerm}
+                descriptionTerm={this.state.descriptionTerm}
+                onPaginationClick={this.onPaginationClick}
+                onCitySelect={this.onCitySelect}
+              />
             </Route>
           </Switch>
         </div>
@@ -31,78 +109,108 @@ export default class App extends React.Component {
   }
 }
 
-class Home extends React.Component {
-  state = {
-    descriptionTerm: "",
-    locationTerm: "",
-    // searchResult: [],
-    searchResult: react_berlin,
-  }
-  getJobs = async () => {
-    const corsAnywhere = "https://cors-anywhere.herokuapp.com/"
-    const baseURL = "https://jobs.github.com/positions.json?"
-    const description = this.state.descriptionTerm
-      ? "description=" + this.state.descriptionTerm
-      : ""
-    const location = this.state.locationTerm ? "&location=" + this.state.locationTerm : ""
-    console.log(corsAnywhere + baseURL + description + location)
-    const response = await fetch(corsAnywhere + baseURL + description + location)
-    const data = await response.json()
-    console.log(data)
-    this.setState({ searchResult: data })
-  }
-  onTitleInputChange = e => {
-    this.setState({ descriptionTerm: e.target.value })
-  }
-  onLocationInputChange = e => {
-    this.setState({ locationTerm: e.target.value })
-  }
-  onFormSubmit = e => {
-    e.preventDefault()
-    this.getJobs()
-  }
+function Home({
+  onJobClick,
+  onTitleInputChange,
+  onLocationInputChange,
+  onFormSubmit,
+  resultPages,
+  currentPage,
+  locationTerm,
+  descriptionTerm,
+  onPaginationClick,
+  onCitySelect,
+  onFullTimeSelect,
+}) {
+  const displayedPages = resultPages[currentPage - 1]
+  return (
+    <div className="Home">
+      <header>
+        <form onSubmit={onFormSubmit}>
+          <i className="material-icons">work_outline</i>
+          <input
+            type="text"
+            placeholder="Title, companies, expertise or benefits"
+            onChange={onTitleInputChange}
+            value={descriptionTerm}
+          />
+          <input type="submit" value="Search" />
+        </form>
+      </header>
+      <main>
+        <aside>
+          <form>
+            <div className="aside-checkbox-wrapper">
+              <input type="checkbox" name="fulltime" id="fulltime" onChange={onFullTimeSelect} />
+              <label htmlFor="fulltime">Full time</label>
+            </div>
 
-  render() {
-    return (
-      <div className="Home">
-        <header>
-          <form onSubmit={this.onFormSubmit}>
-            <i className="material-icons">work_outline</i>
-            <input
-              type="text"
-              placeholder="Title, companies, expertise or benefits"
-              onChange={this.onTitleInputChange}
-              value={this.state.descriptionTerm}
-            />
-            <input type="submit" value="Search" />
-          </form>
-        </header>
-        <main>
-          <aside>
-            <form>
-              <h4 htmlFor="location">Location</h4>
-              <div className="aside-form-wrapper">
-                <i className="material-icons">public</i>
+            <h4 htmlFor="location">Location</h4>
+
+            <div className="aside-search-wrapper">
+              <i className="material-icons">public</i>
+              <input
+                type="text"
+                name="location"
+                id="location"
+                placeholder="City, state, zip code or country"
+                onChange={onLocationInputChange}
+                value={locationTerm}
+              />
+            </div>
+
+            <div className="aside-radio-wrapper">
+              <div className="aside-radio">
                 <input
-                  type="text"
-                  name="location"
-                  id="location"
-                  placeholder="City, state, zip code or country"
-                  onChange={this.onLocationInputChange}
-                  value={this.state.locationTerm}
+                  type="radio"
+                  name="city"
+                  id="London"
+                  onChange={() => onCitySelect("London")}
                 />
+                <label htmlFor="London">London</label>
               </div>
-            </form>
-          </aside>
-          <section>
-            {this.state.searchResult.map(job => (
-              <JobCard job={job} onJobClick={this.props.onJobClick} />
-            ))}
-          </section>
-        </main>
-      </div>
-    )
-  }
+              <div className="aside-radio">
+                <input
+                  type="radio"
+                  name="city"
+                  id="Amsterdam"
+                  onChange={() => onCitySelect("Amsterdam")}
+                />
+                <label htmlFor="Amsterdam">Amsterdam</label>
+              </div>
+              <div className="aside-radio">
+                <input
+                  type="radio"
+                  name="city"
+                  id="New York"
+                  onChange={() => onCitySelect("New York")}
+                />
+                <label htmlFor="New York">New York</label>
+              </div>
+              <div className="aside-radio">
+                <input
+                  type="radio"
+                  name="city"
+                  id="Berlin"
+                  onChange={() => onCitySelect("Berlin")}
+                />
+                <label htmlFor="Berlin">Berlin</label>
+              </div>
+            </div>
+          </form>
+        </aside>
+        <section>
+          {displayedPages &&
+            displayedPages.map(job => <JobCard job={job} key={job.id} onJobClick={onJobClick} />)}
+          <Pagination
+            nbPages={resultPages.length}
+            currentPage={currentPage}
+            onPaginationClick={onPaginationClick}
+          />
+        </section>
+      </main>
+    </div>
+  )
 }
 
 function JobCard({ job, onJobClick }) {
@@ -111,7 +219,7 @@ function JobCard({ job, onJobClick }) {
   const diff = today - jobDate
   const daysAgo = Math.floor(diff / 1000 / 60 / 60 / 24)
   return (
-    <div className="job-card" key={job.id} onClick={() => onJobClick(job)}>
+    <div className="job-card" onClick={() => onJobClick(job)}>
       <Link to="/details">
         <div className="job-card-image">
           {job.company_logo ? (
@@ -192,4 +300,49 @@ function Details({ job }) {
       </main>
     </div>
   )
+}
+
+function Pagination({ nbPages, currentPage, onPaginationClick }) {
+  let paginationButtons = [
+    <button
+      key="-"
+      type="button"
+      className="pagination-button"
+      onClick={() => onPaginationClick("-")}
+      disabled={currentPage === 1}
+    >
+      <i className="material-icons">keyboard_arrow_left</i>
+    </button>,
+  ]
+  for (let i = 1; i <= nbPages; i++) {
+    const cn = i === currentPage ? "pagination-button active" : "pagination-button"
+    paginationButtons.push(
+      <button key={i} type="button" className={cn} onClick={() => onPaginationClick({ i })}>
+        {i}
+      </button>
+    )
+  }
+  paginationButtons.push(
+    <button
+      key="+"
+      type="button"
+      className="pagination-button"
+      onClick={() => onPaginationClick("+")}
+      disabled={currentPage === nbPages}
+    >
+      <i className="material-icons">keyboard_arrow_right</i>
+    </button>
+  )
+  if (nbPages > 1) {
+    return <div className="Pagination">{paginationButtons}</div>
+  }
+  return null
+}
+
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
+  return null
 }
