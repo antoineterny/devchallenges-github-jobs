@@ -3,13 +3,12 @@ import "./App.scss"
 import { Component, useEffect } from "react"
 import { BrowserRouter as Router, Switch, Route, Link, useLocation } from "react-router-dom"
 
-// import react_berlin from "./react_berlin.json"
-import js_everywhere from "./js_everywhere.json"
+import london2401 from "./london2401.json"
 
 export default class App extends Component {
   state = {
     descriptionTerm: "",
-    locationTerm: "",
+    locationTerm: "London",
     fullTimeSearch: false,
     searchResult: [],
     resultPages: [],
@@ -17,19 +16,23 @@ export default class App extends Component {
     selectedJob: {},
   }
 
-  // Juste pour le test !
   componentDidMount() {
-    this.setState({ searchResult: js_everywhere, resultPages: this.chunk(js_everywhere, 5) })
+    this.setState({ searchResult: london2401, resultPages: this.chunk(london2401, 5) })
+    // this.getJobs()
   }
 
   getJobs = async () => {
     const corsAnywhere = "https://cors-anywhere.herokuapp.com/"
     const baseURL = "https://jobs.github.com/positions.json?"
     const description = this.state.descriptionTerm
-      ? "description=" + this.state.descriptionTerm
+      ? "description=" + this.state.descriptionTerm.trim().toLowerCase().replace(" ", "+")
       : ""
-    const location = this.state.locationTerm ? "&location=" + this.state.locationTerm : ""
-    const response = await fetch(corsAnywhere + baseURL + description + location)
+    const location = this.state.locationTerm
+      ? "&location=" + this.state.locationTerm.trim().toLowerCase().replace(" ", "+")
+      : ""
+    const fulltime = this.state.fullTimeSearch ? "&full_time=true" : ""
+    const response = await fetch(corsAnywhere + baseURL + description + location + fulltime)
+    console.log(corsAnywhere + baseURL + description + location + fulltime)
     const data = await response.json()
     this.setState({ searchResult: data })
     this.setState({ resultPages: this.chunk(data, 5) })
@@ -40,19 +43,16 @@ export default class App extends Component {
       arr.slice(i * size, i * size + size)
     )
 
-  onTitleInputChange = e => {
-    this.setState({ descriptionTerm: e.target.value })
-  }
+  onTitleInputChange = e => this.setState({ descriptionTerm: e.target.value })
 
-  onLocationInputChange = e => {
-    this.setState({ locationTerm: e.target.value })
-  }
-  
+  onLocationInputChange = e => this.setState({ locationTerm: e.target.value })
+
   onCitySelect = city => {
-    this.setState({ locationTerm: city })
+    this.setState({ locationTerm: city }, this.getJobs)
   }
 
-  onFullTimeSelect = () => this.setState({fullTimeSearch: !this.state.fullTimeSearch})
+  onFullTimeSelect = () =>
+    this.setState({ fullTimeSearch: !this.state.fullTimeSearch }, this.getJobs)
 
   onFormSubmit = e => {
     e.preventDefault()
@@ -62,17 +62,9 @@ export default class App extends Component {
   onJobClick = job => this.setState({ selectedJob: job })
 
   onPaginationClick = arg => {
-    console.log("arg", arg)
-    console.log("this.state.currentPage", this.state.currentPage)
-    console.log("this.state.currentPage - 1", this.state.currentPage - 1)
     const newPage =
       arg === "-" ? this.state.currentPage - 1 : arg === "+" ? this.state.currentPage + 1 : arg.i
     this.setState({ currentPage: newPage })
-    // if (arg === 0) {
-    //   console.log("arg 0", currentPage)
-    //   this.setState({ currentPage: currentPage - 1 })}
-    // if (arg === "+") this.setState({ currentPage: currentPage + 1 })
-    // else this.setState({ currentPage: arg.i })
   }
 
   render() {
@@ -100,9 +92,11 @@ export default class App extends Component {
                 descriptionTerm={this.state.descriptionTerm}
                 onPaginationClick={this.onPaginationClick}
                 onCitySelect={this.onCitySelect}
+                onFullTimeSelect={this.onFullTimeSelect}
               />
             </Route>
           </Switch>
+          <footer>Antoine Terny @ DevChallenges.io</footer>
         </div>
       </Router>
     )
@@ -139,9 +133,9 @@ function Home({
       </header>
       <main>
         <aside>
-          <form>
-            <div className="aside-checkbox-wrapper">
-              <input type="checkbox" name="fulltime" id="fulltime" onChange={onFullTimeSelect} />
+          <form onSubmit={onFormSubmit}>
+            <div className="aside-checkbox">
+              <input type="checkbox" name="fulltime" id="fulltime" onClick={onFullTimeSelect} />
               <label htmlFor="fulltime">Full time</label>
             </div>
 
@@ -164,37 +158,38 @@ function Home({
                 <input
                   type="radio"
                   name="city"
-                  id="London"
+                  id="london"
                   onChange={() => onCitySelect("London")}
+                  defaultChecked
                 />
-                <label htmlFor="London">London</label>
+                <label htmlFor="london">London</label>
               </div>
               <div className="aside-radio">
                 <input
                   type="radio"
                   name="city"
-                  id="Amsterdam"
+                  id="amsterdam"
                   onChange={() => onCitySelect("Amsterdam")}
                 />
-                <label htmlFor="Amsterdam">Amsterdam</label>
+                <label htmlFor="amsterdam">Amsterdam</label>
               </div>
               <div className="aside-radio">
                 <input
                   type="radio"
                   name="city"
-                  id="New York"
+                  id="newyork"
                   onChange={() => onCitySelect("New York")}
                 />
-                <label htmlFor="New York">New York</label>
+                <label htmlFor="newyork">New York</label>
               </div>
               <div className="aside-radio">
                 <input
                   type="radio"
                   name="city"
-                  id="Berlin"
+                  id="berlin"
                   onChange={() => onCitySelect("Berlin")}
                 />
-                <label htmlFor="Berlin">Berlin</label>
+                <label htmlFor="berlin">Berlin</label>
               </div>
             </div>
           </form>
@@ -232,9 +227,7 @@ function JobCard({ job, onJobClick }) {
           <h5>{job.company}</h5>
           <h3>{job.title}</h3>
           <div className="job-card-details">
-            <div>
-              {job.type === "Full Time" ? <div className="full-time">Full Time</div> : null}
-            </div>
+            {job.type === "Full Time" ? <div className="full-time">Full Time</div> : null}
             <div className="spacetime">
               <span>
                 <i className="material-icons">public</i>
