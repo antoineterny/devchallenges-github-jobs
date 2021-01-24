@@ -1,4 +1,4 @@
-<h1 align="center">Weather App</h1>
+<h1 align="center">Github Jobs</h1>
 
 <div align="center">
    Solution for a challenge from  <a href="http://devchallenges.io" target="_blank">Devchallenges.io</a>.
@@ -6,15 +6,15 @@
 
 <div align="center">
   <h3>
-    <a href="https://devchallenges-weather-app.netlify.app/">
+    <a href="https://devchallenges-github-jobs.netlify.app/">
       Demo
     </a>
     <span> | </span>
-    <a href="https://github.com/antoineterny/devchallenges-weather-app">
+    <a href="https://github.com/antoineterny/devchallenges-github-jobs">
       Solution
     </a>
     <span> | </span>
-    <a href="https://devchallenges.io/challenges/mM1UIenRhK808W8qmLWv">
+    <a href="https://devchallenges.io/challenges/TtUjDt19eIHxNQ4n5jps">
       Challenge
     </a>
   </h3>
@@ -36,20 +36,20 @@
 
 [![screenshot](screenshot.png)](https://devchallenges-weather-app.netlify.app/)
 
-It was a pleasure to work on such a lovely design.  
+An interesting challenge, for which I used React Router for the first time.  
 
 ### Built With
 
 <!-- This section should list any major frameworks that you built your project using. Here are a few examples.-->
 
 - [React](https://reactjs.org/)
-- [CORS Anywhere](https://github.com/Rob--W/cors-anywhere/#documentation)
+- [React Router](ttps://reactrouter.com/)
 
 ## Features
 
 <!-- List the features of your application or follow the template. Don't share the figma file here :) -->
 
-This application/site was created as a submission to a [DevChallenges](https://devchallenges.io/challenges) challenge. The [challenge](https://devchallenges.io/challenges/mM1UIenRhK808W8qmLWv) was to build an application to complete the given user stories.
+This application/site was created as a submission to a [DevChallenges](https://devchallenges.io/challenges) challenge. The [challenge](https://devchallenges.io/challenges/TtUjDt19eIHxNQ4n5jps) was to build an application to complete the given user stories.
 
 ## How To Use
 
@@ -59,7 +59,7 @@ To clone and run this application, you'll need [Git](https://git-scm.com) and [N
 
 ```bash
 # Clone this repository
-$ git clone https://github.com/antoineterny/devchallenges-weather-app
+$ git clone https://github.com/antoineterny/devchallenges-github-jobs
 
 # Install dependencies
 $ npm install
